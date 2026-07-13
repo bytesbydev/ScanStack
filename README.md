@@ -1,23 +1,25 @@
+# 👾 ScanStack
 
-# 👾 ScanStack — AI Resume Analyzer
+An intelligent **AI-powered Resume Analyzer** built with **React + Gemini API** that analyzes resumes and provides ATS scores, skill insights, improvement suggestions, and actionable recommendations.
 
-ScanStack is an AI-powered resume analyzer built with **React.js and Google Gemini API**. It analyzes resumes and provides ATS scores, skill insights, industry comparisons, and actionable suggestions to help improve resume quality.
-
-🔗 **Live Demo:** [ScanStack](https://ai-resume-analyzer-seven-rouge.vercel.app/)
+> 🔗 **Live Demo:** [https://ai-resume-analyzer-seven-rouge.vercel.app/](https://ai-resume-analyzer-seven-rouge.vercel.app/)
 
 ---
 
 ## ✨ Features
 
-- 📄 Upload resumes in PDF format
-- 🤖 AI-powered resume analysis using Gemini API
-- 📊 ATS compatibility score (0–100)
-- 🧠 Technical and soft skill detection
-- 📈 Industry comparison and radar chart analysis
-- 💡 Prioritized resume improvement suggestions
-- ⚡ Animated analysis progress indicator
-- 📉 Section-wise resume evaluation
+- 📄 Upload Resume (PDF support)
+- 🤖 AI-powered resume analysis using **Gemini API**
+- 📊 ATS Score generation (0–100)
+- 🧠 Skill detection (Technical + Soft skills)
+- 📈 Industry comparison & radar analysis
+- 💡 Improvement suggestions with priority levels
+- ⚡ Real-time analysis loading animation
+- 📉 Section-wise breakdown
 - 🎯 Keyword optimization insights
+- 📉 Section-wise resume evaluation
+- ⚡ Real-time analysis with interactive loading animations
+- 📱 Fully responsive and modern UI
 
 ---
 
@@ -25,16 +27,15 @@ ScanStack is an AI-powered resume analyzer built with **React.js and Google Gemi
 
 ScanStack provides insights into:
 
-- Basic resume information
-- Key strengths and weaknesses
-- Critical issues affecting resume quality
-- ATS compatibility and readability scores
-- Keyword matching and optimization
+- Basic information extraction
+- Strengths identification
+- Weakness & improvement detection
+- Critical issues detection
+- ATS compatibility score
+- Keyword matching analysis
 - Industry benchmarking
-- Recommended skills
-- Actionable suggestions with High, Medium, and Low priorities
-
-> Note: ATS scores and AI-generated recommendations are estimates, not guarantees of how an employer's ATS will evaluate a resume.
+- Recommended skills list
+- Actionable suggestions (High / Medium / Low priority)
 
 ---
 
@@ -42,12 +43,12 @@ ScanStack provides insights into:
 
 | Technology | Purpose |
 |---|---|
-| React.js | Frontend framework |
-| Tailwind CSS | UI styling |
-| Google Gemini API | AI-powered analysis |
-| React Router DOM | Navigation |
-| Chart.js | Data visualization |
-| Lucide Icons | Interface icons |
+| ⚛️ React.js | Frontend Framework |
+| 🎨 Tailwind CSS | UI Styling |
+| 🤖 Google Gemini API | AI Engine |
+| 📦 React Router DOM | Navigation |
+| 📊 Chart.js | Radar & Bar Charts |
+| 🧩 Lucide Icons | Icon Library |
 
 ---
 
@@ -60,41 +61,52 @@ src/
 │   ├── loader/
 │   ├── results/
 │   └── common/
+│
 ├── pages/
 │   ├── Home.jsx
 │   ├── Analyzing.jsx
 │   └── Results.jsx
+│
 ├── utils/
 │   ├── aiAnalysis.js
 │   ├── extractText.js
 │   └── analyzeResume.js
+│
 └── App.jsx
 ```
 
 ---
 
-## 🔄 How It Works
+## 🔄 App Flow
 
-1. Upload a resume in PDF format.
-2. Extract text from the uploaded PDF.
-3. Navigate to the analysis page.
-4. Process the resume using the Gemini API.
-5. Generate AI-powered insights and scores.
-6. Display the analysis and improvement recommendations.
+```
+Home Page
+    ↓
+Upload Resume
+    ↓
+Extract Text (PDF Parser)
+    ↓
+Navigate → Analyzing Page
+    ↓
+Progress Animation Starts
+    ↓
+Gemini API Processing
+    ↓
+AI Response Generated
+    ↓
+Navigate → Results Page
+    ↓
+Display Full Resume Analysis
+```
 
 ---
 
-## ⚙️ Getting Started
-
-### Prerequisites
-
-- Node.js and npm
-- A Google Gemini API key
+## ⚙️ Setup Instructions
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/bytesbydev/ai-resume-analyzer.git
+git clone https://github.com/your-username/ai-resume-analyzer.git
 cd ai-resume-analyzer
 ```
 
@@ -106,18 +118,22 @@ npm install
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the root directory:
 
 ```env
-VITE_GEMINI_API_KEY=your_api_key_here
+VITE_GEMINI_API_KEY=your_gemini_api_key
 ```
 
-Replace `your_api_key_here` with your own API key.
-
-### 4. Start the Development Server
+### 4. Run the Project
 
 ```bash
 npm run dev
+```
+
+Visit:
+
+```text
+http://localhost:5173
 ```
 
 Open the local URL displayed in your terminal.
@@ -126,18 +142,18 @@ Open the local URL displayed in your terminal.
 
 ## 🔑 Gemini API Setup
 
-1. Visit [Google AI Studio](https://aistudio.google.com/).
-2. Generate a Gemini API key.
-3. Add the key to your `.env` file.
-4. Ensure your application uses the appropriate Gemini model and API endpoint.
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Generate your API Key
+3. Add it to your `.env` file
+4. The app uses the following endpoint:
 
-**Security note:** Variables prefixed with `VITE_` are exposed to client-side code. Do not use a publicly deployed frontend API key as a secret. For production, route Gemini requests through a backend or serverless function and keep the key in server-side environment variables.
+```
+https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+```
 
 ---
 
-## 📊 Example Analysis Output
-
-The following is a simplified example of the analysis data:
+## 📊 Example Output
 
 ```json
 {
@@ -158,36 +174,35 @@ The values are illustrative and may vary depending on the resume and analysis.
 
 ---
 
-## 🚧 Known Limitations
+## 🚧 Known Issues
 
-- Analysis time depends on API response speed.
-- Large PDFs may increase text extraction time.
-- AI analysis requires a stable internet connection.
-- Results depend on the quality of extracted text and AI-generated output.
+- Gemini API response may take 2–5 seconds
+- Large PDFs may slow down text extraction
+- Requires a stable internet connection for AI calls
 
 ---
 
-## 🚀 Future Improvements
+## 🎯 Future Improvements
 
-- [ ] Drag-and-drop resume upload
+- [ ] Drag & drop upload UI
 - [ ] PDF preview before analysis
 - [ ] User authentication
-- [ ] Resume analysis history
-- [ ] Downloadable PDF reports
-- [ ] Job description matching
+- [ ] Save analysis history
+- [ ] Download report as PDF
+- [ ] Job matching system
 
 ---
 
 ## 👨‍💻 Author
 
-**Bytesbydev**
-
-- GitHub: [@bytesbydev](https://github.com/bytesbydev)
+bytesbydev 
 
 ---
 
-## ⭐ Support
+## 📄 License
 
-If you find ScanStack useful, consider giving the repository a star ⭐
+This project is licensed under the **MIT License**.
 
-Feedback and contributions are welcome!
+If you found this project helpful, give it a star ⭐ and share it with others!
+
+⭐ **If ScanStack helped you improve your resume, consider giving the repository a star—it supports the project and encourages future development!**
