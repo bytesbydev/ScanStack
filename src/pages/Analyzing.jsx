@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/common/Navbar";
 import AnaylsisLoader from "../components/loader/AnaylsisLoader";
@@ -10,54 +11,103 @@ const Analyzing = () => {
   const parsedData = location.state?.parsedData;
 
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!parsedData) {
-      navigate("/");
+      navigate("/", { replace: true });
       return;
     }
+
+    let active = true;
+    let navigationTimer;
 
     const timers = [];
 
     const runAnalysis = async () => {
       try {
+        setError("");
         setProgress(10);
 
-        timers.push(setTimeout(() => setProgress(25), 1000));
-        timers.push(setTimeout(() => setProgress(42), 2000));
-        timers.push(setTimeout(() => setProgress(67), 3000));
-        timers.push(setTimeout(() => setProgress(89), 4000));
+        timers.push(setTimeout(() => {
+          if (active) setProgress(25);
+        }, 1000));
+
+        timers.push(setTimeout(() => {
+          if (active) setProgress(42);
+        }, 2000));
+
+        timers.push(setTimeout(() => {
+          if (active) setProgress(67);
+        }, 3000));
+
+        timers.push(setTimeout(() => {
+          if (active) setProgress(89);
+        }, 4000));
 
         const result = await aiAnalysis(parsedData);
 
+        if (!active) return;
+
         setProgress(100);
 
-        timers.push(
-          setTimeout(() => {
+        navigationTimer = setTimeout(() => {
+          if (active) {
             navigate("/results", {
               state: { result },
+              replace: true,
             });
-          }, 700)
+          }
+        }, 700);
+      } catch (err) {
+        if (!active) return;
+
+        console.error("Analysis failed:", err);
+        setError(
+          "Resume analysis failed. Please check your connection and try again."
         );
-      } catch (error) {
-        console.error("Analysis failed:", error);
       }
     };
 
     runAnalysis();
 
-    return () => timers.forEach(clearTimeout);
+    return () => {
+      active = false;
+      timers.forEach(clearTimeout);
+      clearTimeout(navigationTimer);
+    };
   }, [parsedData, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="flex justify-center items-center px-4 py-10 sm:py-16">
-        <div className="w-full max-w-md sm:max-w-lg md:max-w-xl p-5 sm:p-8 rounded-xl border border-gray-200 bg-white shadow-sm">
-          <AnaylsisLoader progress={progress} />
+      <main className="flex items-center justify-center px-4 py-10 sm:py-16">
+        <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:max-w-lg sm:p-8 md:max-w-xl">
+          {error ? (
+            <div className="py-6 text-center">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Analysis Failed
+              </h2>
+
+              <p className="mt-3 text-sm text-gray-600">
+                {error}
+              </p>
+
+              <button
+                onClick={() =>
+                  navigate("/", { replace: true })
+                }
+                className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 text-white transition hover:bg-blue-700"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : (
+            <AnaylsisLoader progress={progress} />
+          )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
