@@ -1,91 +1,106 @@
-import { AlertCircle } from "lucide-react";
+
 import React from "react";
+import { AlertCircle } from "lucide-react";
 
-const SuggestionCard = ({ suggestions, priority }) => {
-  const getPriorityColors = (priority) =>
-    ({
-      high: {
-        icon: "text-red-600",
-        badge: "bg-red-50 text-red-700 border-red-200",
-      },
-      medium: {
-        icon: "text-amber-500",
-        badge: "bg-amber-50 text-amber-700 border-amber-200",
-      },
-      low: {
-        icon: "text-blue-500",
-        badge: "bg-blue-50 text-blue-700 border-blue-200",
-      },
-    })[priority];
+const priorityStyles = {
+  high: {
+    icon: "text-red-600",
+    badge: "border-red-200 bg-red-50 text-red-700",
+  },
+  medium: {
+    icon: "text-amber-500",
+    badge: "border-amber-200 bg-amber-50 text-amber-700",
+  },
+  low: {
+    icon: "text-blue-500",
+    badge: "border-blue-200 bg-blue-50 text-blue-700",
+  },
+};
 
-  const styles =
-    getPriorityColors(priority?.toLowerCase()) ||
-    getPriorityColors("high");
+const SuggestionCard = ({ suggestions = {}, priority }) => {
+  const level = priority?.toLowerCase() || "high";
+  const styles = priorityStyles[level] || priorityStyles.high;
+
+  const {
+    title,
+    category,
+    timeToFix,
+    impact,
+    before,
+    after,
+  } = suggestions || {};
 
   return (
-    <div className="w-full border border-gray-200 rounded-2xl p-4 sm:p-5 bg-white space-y-4">
-
-      {/* Title Row */}
+    <article className="w-full space-y-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5">
+      {/* Title */}
       <div className="flex items-start gap-3">
+        <AlertCircle
+          aria-hidden="true"
+          className={`mt-1 h-5 w-5 shrink-0 ${styles.icon}`}
+        />
 
-        <AlertCircle className={`${styles.icon} w-5 h-5 mt-1 shrink-0`} />
-
-        <h3 className="text-sm sm:text-base font-semibold text-gray-900 leading-snug">
-          {suggestions.title}
+        <h3 className="text-sm font-semibold leading-snug text-gray-900 sm:text-base">
+          {title || "Resume improvement suggestion"}
         </h3>
-
       </div>
 
-      {/* Meta Row */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-
+      {/* Metadata */}
+      <div className="flex flex-wrap items-center gap-2 text-xs sm:gap-3 sm:text-sm">
         <span
-          className={`border px-2 py-1 rounded-md font-medium ${styles.badge}`}
+          className={`rounded-md border px-2 py-1 font-medium capitalize ${styles.badge}`}
         >
-          {suggestions.priority} priority
+          {level} priority
         </span>
 
-        <span className="bg-slate-50 text-slate-700 px-2 py-1 rounded-md border border-slate-200">
-          {suggestions.category}
-        </span>
+        {category && (
+          <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-slate-700">
+            {category}
+          </span>
+        )}
 
-        <span className="text-gray-500">
-          {suggestions.timeToFix}
-        </span>
-
+        {timeToFix && (
+          <span className="text-gray-500">
+            Estimated time: {timeToFix}
+          </span>
+        )}
       </div>
 
       {/* Impact */}
-      <p className="text-sm text-gray-600">
-        {suggestions.impact}
-      </p>
+      {impact && (
+        <p className="text-sm leading-relaxed text-gray-600">
+          {impact}
+        </p>
+      )}
 
-      {/* Before / After */}
-      <div className="space-y-3">
+      {/* Before and After */}
+      {(before || after) && (
+        <div className="space-y-3">
+          {before && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+              <p className="mb-1 text-xs font-medium text-red-700">
+                Before
+              </p>
 
-        {/* Before */}
-        <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-          <p className="text-xs font-medium text-red-700 mb-1">
-            Before:
-          </p>
-          <p className="text-sm text-gray-700">
-            {suggestions.before}
-          </p>
+              <p className="whitespace-pre-wrap break-words text-sm text-gray-700">
+                {before}
+              </p>
+            </div>
+          )}
+
+          {after && (
+            <div className="rounded-lg border border-green-200 bg-green-50 p-3">
+              <p className="mb-1 text-xs font-medium text-green-700">
+                After
+              </p>
+
+              <p className="whitespace-pre-wrap break-words text-sm text-gray-700">
+                {after}
+              </p>
+            </div>
+          )}
         </div>
-
-        {/* After */}
-        <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-          <p className="text-xs font-medium text-green-700 mb-1">
-            After:
-          </p>
-          <p className="text-sm text-gray-700">
-            {suggestions.after}
-          </p>
-        </div>
-
-      </div>
-
-    </div>
+      )}
+    </article>
   );
 };
 
