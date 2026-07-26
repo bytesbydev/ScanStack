@@ -1,27 +1,43 @@
+
 import React from "react";
 import InsightCard from "./InsightCard";
 
 const InsightSection = ({ result }) => {
+  const strengths = Array.isArray(result?.strengths)
+    ? result.strengths
+    : [];
+
+  const improvements = Array.isArray(result?.improvements)
+    ? result.improvements
+    : [];
+
+  const criticalIssues = Array.isArray(result?.criticalIssues)
+    ? result.criticalIssues
+    : [];
+
   return (
-<div className="flex flex-col md:flex-row gap-4 mt-6">
+    <section
+      className="flex flex-col md:flex-row gap-4 mt-6"
+      aria-label="Resume insights"
+    >
       <InsightCard
         title="Strengths"
         type="strength"
-        data={result.strengths}
+        data={strengths}
       />
 
       <InsightCard
         title="Improvements"
         type="improvement"
-        data={result.improvements}
+        data={improvements}
       />
 
       <InsightCard
         title="Critical Issues"
         type="critical"
-        data={result.criticalIssues}
+        data={criticalIssues}
       />
-    </div>
+    </section>
   );
 };
 
