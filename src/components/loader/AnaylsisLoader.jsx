@@ -11,32 +11,49 @@ const steps = [
   {
     icon: FileSearch,
     title: "Parsing Resume",
-    time: "1-2s",
+    time: "1–2s",
   },
   {
     icon: Brain,
     title: "Analyzing Skills",
-    time: "1-2s",
+    time: "1–2s",
   },
   {
     icon: Lightbulb,
     title: "Generating Insights",
-    time: "1-2s",
+    time: "1–2s",
   },
 ];
 
-const AnaylsisLoader = ({ progress }) => {
+const getProgress = (value) => {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) return 0;
+
+  return Math.min(100, Math.max(0, number));
+};
+
+const AnaylsisLoader = ({ progress = 0 }) => {
+  const safeProgress = getProgress(progress);
+
   const currentStep =
-    progress >= 89 ? 3 :
-    progress >= 42 ? 2 :
-    progress >= 10 ? 1 : 0;
+    safeProgress >= 89
+      ? 3
+      : safeProgress >= 42
+      ? 2
+      : safeProgress >= 10
+      ? 1
+      : 0;
 
   return (
-    <div>
+    <section
+      className="w-full"
+      aria-label="Resume analysis progress"
+    >
       {/* Header */}
       <div className="text-center mb-6">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">
-          Analysing your resume
+          Analyzing Your Resume
         </h2>
 
         <p className="text-sm sm:text-base text-gray-500 mt-1">
@@ -47,8 +64,8 @@ const AnaylsisLoader = ({ progress }) => {
       {/* Steps */}
       <div className="space-y-3">
         {steps.map((step, index) => {
-          const isActive = currentStep >= index;
           const isComplete = currentStep > index;
+          const isActive = currentStep === index;
 
           return (
             <LoaderStep
@@ -57,9 +74,11 @@ const AnaylsisLoader = ({ progress }) => {
               title={step.title}
               time={step.time}
               status={
-                isComplete ? "completed" :
-                isActive ? "active" :
-                "pending"
+                isComplete
+                  ? "completed"
+                  : isActive
+                  ? "active"
+                  : "pending"
               }
             />
           );
@@ -70,14 +89,24 @@ const AnaylsisLoader = ({ progress }) => {
       <div className="mt-6">
         <div className="flex justify-between mb-2 text-sm sm:text-base">
           <span className="font-medium">Progress</span>
+
           <span className="font-semibold">
-            {Math.round(progress)}%
+            {Math.round(safeProgress)}%
           </span>
         </div>
 
-        <ProgressBar progress={progress} />
+        <div
+          role="progressbar"
+          aria-label="Resume analysis progress"
+          aria-valuenow={Math.round(safeProgress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <ProgressBar progress={safeProgress} />
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
+
 export default AnaylsisLoader;
