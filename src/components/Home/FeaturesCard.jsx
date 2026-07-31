@@ -1,24 +1,29 @@
+
 import React from "react";
-const FeaturesCard = ({icon,title, description }) => {
+
+const FeaturesCard = ({ icon, title, description }) => {
   return (
-     <div className="flex gap-4 bg-white p-4 sm:p-5 rounded-lg shadow-sm w-full">
+    <article className="flex items-start gap-4 bg-white p-4 sm:p-5 rounded-lg shadow-sm w-full">
+      {icon && (
+        <img
+          src={icon}
+          alt=""
+          aria-hidden="true"
+          className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 object-contain"
+          loading="lazy"
+        />
+      )}
 
-      <img
-        src={icon}
-        alt={title}
-        className="h-8 w-8 sm:h-10 sm:w-10 shrink-0"
-      />
-
-      <div>
-        <span className="text-base sm:text-lg font-medium">
+      <div className="min-w-0">
+        <h3 className="text-base sm:text-lg font-medium text-gray-900">
           {title}
-        </span>
+        </h3>
 
-        <div className="text-sm sm:text-[15px] mt-2 text-gray-600">
+        <p className="text-sm sm:text-[15px] mt-2 text-gray-600 leading-relaxed">
           {description}
-        </div>
+        </p>
       </div>
-    </div>
+    </article>
   );
 };
 
