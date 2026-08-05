@@ -1,90 +1,125 @@
 
 export const analyzeResume = (text = "") => {
-
-  if (!text || typeof text !== "string") {
-    console.log("Invalid text input");
+  if (typeof text !== "string" || !text.trim()) {
     return {};
   }
 
+  const resume = text.replace(/\r\n?/g, "\n");
+  const normalized = resume.toLowerCase();
 
+  const notFound = "Not Found";
+
+  const getFirstMatch = (regex) =>
+    resume.match(regex)?.[0]?.trim() || notFound;
+
+  const getMatches = (regex) => [...resume.matchAll(regex)]
+    .map((match) => match[0].trim())
+    .filter(Boolean);
 
   // -----------------------------
-  // REGEX PATTERNS
+  // BASIC INFORMATION
   // -----------------------------
 
-  const emailRegex =
-    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/;
+  const email = getFirstMatch(
+    /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+  );
 
-  const phoneRegex =
-    /(\+91[\\-\s]?)?[0]?(91)?[6789]\d{9}/g;
+  const phone = getFirstMatch(
+    /(?<!\d)(?:\+91[\s-]?|91[\s-]?|0)?[6-9]\d{9}(?!\d)/g
+  );
 
-  const linkedinRegex =
-    /https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-_%]+/g;
+  const linkedin = getFirstMatch(
+    /https?:\/\/(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?/i
+  );
 
-  const githubRegex =
-    /https?:\/\/(www\.)?github\.com\/[a-zA-Z0-9-_%]+/g;
+  const github = getFirstMatch(
+    /https?:\/\/(?:www\.)?github\.com\/[a-zA-Z0-9_-]+\/?/i
+  );
 
-  const portfolioRegex =
-    /https?:\/\/(www\.)?[a-zA-Z0-9-]+\.[a-z]{2,}/g;
-
-  const pinCodeRegex =
-    /\b\d{6}\b/g;
-
-  const dobRegex =
-    /\b(\d{1,2}[\\/\\-]\d{1,2}[\\/\\-]\d{2,4})\b/g;
-
-  const graduationYearRegex =
-    /\b(19|20)\d{2}\b/g;
+  const portfolio = getFirstMatch(
+    /https?:\/\/(?:www\.)?(?!linkedin\.com|github\.com)[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+(?::\d+)?(?:\/[^\s]*)?/i
+  );
 
   // -----------------------------
   // NAME EXTRACTION
   // -----------------------------
-  const lines = text.split("\n").filter(line => line.trim() !== "");
 
-  const name = lines[0] || "Not Found";
+  const ignoredHeadings =
+    /^(resume|curriculum vitae|cv|profile|contact|about me|personal details)$/i;
+
+  const lines = resume
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const nameLine = lines.find((line) => {
+    if (line.length > 60 || ignoredHeadings.test(line)) {
+      return false;
+    }
+
+    if (/@|https?:\/\/|\d/.test(line)) {
+      return false;
+    }
+
+    if (/^(summary|objective|education|experience|skills|projects)\b/i.test(line)) {
+      return false;
+    }
+
+    return /^[A-Za-z][A-Za-z .'-]*$/.test(line);
+  });
+
+  const name = nameLine || notFound;
 
   // -----------------------------
-  // SKILLS LIST
+  // SKILLS
   // -----------------------------
 
   const skillsList = [
     "React",
+    "React Native",
     "JavaScript",
+    "TypeScript",
     "Node.js",
+    "Express.js",
     "MongoDB",
-    "Express",
     "Python",
     "Java",
     "C++",
+    "C#",
     "HTML",
     "CSS",
-    "Tailwind",
+    "Tailwind CSS",
     "SQL",
+    "PostgreSQL",
+    "MySQL",
     "Git",
     "GitHub",
     "AWS",
     "Docker",
     "Firebase",
-    "TypeScript",
     "Next.js",
+    "Vue.js",
+    "Angular",
+    "REST API",
+    "GraphQL",
+    "Redis",
+    "Linux",
+    "Figma",
+    "Machine Learning",
+    "Data Analysis",
   ];
 
-  const foundSkills = skillsList.filter(skill =>
-    text.toLowerCase().includes(skill.toLowerCase())
-  );
+  const escapeRegex = (value) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-  // -----------------------------
-  // BASIC EXTRACTIONS
-  // -----------------------------
+  const foundSkills = skillsList.filter((skill) => {
+    const pattern = new RegExp(
+      `(^|[^a-zA-Z0-9+#.])${escapeRegex(skill)}(?![a-zA-Z0-9])`,
+      "i"
+    );
 
-  const email = text.match(emailRegex);
-  const phone = text.match(phoneRegex);
-  const linkedin = text.match(linkedinRegex);
-  const github = text.match(githubRegex);
-  const portfolio = text.match(portfolioRegex);
-  const pinCode = text.match(pinCodeRegex);
-  const dob = text.match(dobRegex);
-  const graduationYear = text.match(graduationYearRegex);
+    return pattern.test(resume);
+  });
 
   // -----------------------------
   // EDUCATION
@@ -97,90 +132,160 @@ export const analyzeResume = (text = "") => {
     "MCA",
     "B.Sc",
     "M.Sc",
+    "B.Com",
+    "M.Com",
+    "BBA",
+    "MBA",
+    "Bachelor of Engineering",
+    "Bachelor of Science",
+    "Bachelor of Arts",
+    "Master of Science",
+    "Master of Arts",
     "Bachelor",
     "Master",
-    "MBA",
+    "Ph.D.",
+    "Diploma",
   ];
 
   const educationDegree =
-    degreeKeywords.find(degree =>
-      text.toLowerCase().includes(degree.toLowerCase())
-    ) || "Not Found";
-
-  // -----------------------------
-  // UNIVERSITY
-  // -----------------------------
+    degreeKeywords.find((degree) =>
+      new RegExp(
+        escapeRegex(degree).replace(/\\\./g, "\\.?"),
+        "i"
+      ).test(resume)
+    ) || notFound;
 
   const universityRegex =
-    /(University|College|Institute)[A-Za-z ,.]*/g;
+    /\b(?:[A-Z][A-Za-z&.'-]*\s+){0,6}(?:University|College|Institute)\b(?:\s+of\s+[A-Za-z&.'-]+){0,4}/g;
 
-  const university = text.match(universityRegex);
+  const university = getFirstMatch(universityRegex);
 
-  // -----------------------------
-  // EXPERIENCE
-  // -----------------------------
-
-  const experienceRegex =
-    /(\d+)\+?\s*(years|year)/i;
-
-  const totalExperience = text.match(experienceRegex);
+  const graduationYear = getFirstMatch(
+    /\b(?:19|20)\d{2}\b/g
+  );
 
   // -----------------------------
-  // CURRENT JOB TITLE
+  // EXPERIENCE AND JOB TITLES
   // -----------------------------
+
+  const experienceMatch = resume.match(
+    /\b\d{1,2}\+?\s*(?:years?|yrs?)(?:\s+of)?\s+(?:experience|professional experience)\b/i
+  );
+
+  const totalExperience = experienceMatch?.[0] || notFound;
 
   const jobTitleKeywords = [
     "Frontend Developer",
+    "Front-End Developer",
     "Backend Developer",
-    "Software Engineer",
+    "Back-End Developer",
     "Full Stack Developer",
+    "Software Engineer",
     "React Developer",
     "Web Developer",
+    "UI Developer",
+    "UX Designer",
+    "Data Analyst",
+    "Data Scientist",
+    "DevOps Engineer",
+    "Mobile App Developer",
+    "Machine Learning Engineer",
   ];
 
-  const currentJobTitle =
-    jobTitleKeywords.find(job =>
-      text.toLowerCase().includes(job.toLowerCase())
-    ) || "Not Found";
+  const jobTitles = jobTitleKeywords.filter((job) =>
+    new RegExp(`\\b${escapeRegex(job)}\\b`, "i").test(resume)
+  );
+
+  const currentJobTitle = jobTitles[0] || notFound;
+
+  const companyNames = [
+    "Infosys",
+    "TCS",
+    "Google",
+    "Microsoft",
+    "Amazon",
+    "Wipro",
+    "Accenture",
+    "IBM",
+    "Deloitte",
+    "Adobe",
+    "Oracle",
+    "Meta",
+  ];
+
+  const companies = companyNames.filter((company) =>
+    new RegExp(`\\b${escapeRegex(company)}\\b`, "i").test(resume)
+  );
+
+  const currentCompany = companies[0] || notFound;
+
+  const employmentDates = getMatches(
+    /\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{4}\b/gi
+  );
 
   // -----------------------------
-  // COMPANY NAMES
+  // LOCATION AND PERSONAL DETAILS
   // -----------------------------
 
-  const companyRegex =
-    /(Infosys|TCS|Google|Microsoft|Amazon|Wipro|Accenture)/gi;
+  const cities = [
+    "Dehradun",
+    "Delhi",
+    "Mumbai",
+    "Bengaluru",
+    "Bangalore",
+    "Hyderabad",
+    "Chennai",
+    "Pune",
+    "Kolkata",
+    "Noida",
+    "Gurugram",
+    "Gurgaon",
+    "Jaipur",
+    "Lucknow",
+    "Chandigarh",
+    "Ahmedabad",
+    "Indore",
+  ];
 
-  const companies = text.match(companyRegex);
+  const location =
+    cities.find((city) =>
+      new RegExp(`\\b${escapeRegex(city)}\\b`, "i").test(resume)
+    ) || notFound;
 
-  // -----------------------------
-  // EMPLOYMENT DATES
-  // -----------------------------
+  const pinCode = getFirstMatch(
+    /\b[1-9]\d{5}\b/g
+  );
 
-  const employmentDateRegex =
-    /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s?\d{4}\b/gi;
-
-  const employmentDates = text.match(employmentDateRegex);
-
-  // -----------------------------
-  // LOCATION
-  // -----------------------------
-
-  const cityRegex =
-    /(Delhi|Mumbai|Bangalore|Hyderabad|Chennai|Pune|Kolkata)/gi;
-
-  const city = text.match(cityRegex);
+  const dateOfBirth = getFirstMatch(
+    /\b(?:0?[1-9]|[12]\d|3[01])[/-](?:0?[1-9]|1[0-2])[/-](?:\d{2}|\d{4})\b/g
+  );
 
   // -----------------------------
   // SUMMARY / OBJECTIVE
   // -----------------------------
 
-  let summary = "Not Found";
+  const summaryHeading = /\b(?:professional\s+)?(?:summary|objective|about me|profile)\b/i;
+  const nextSectionHeading =
+    /\b(?:education|experience|work experience|employment|skills|technical skills|projects|certifications|achievements)\b/i;
 
-  if (text.toLowerCase().includes("summary")) {
-    summary = text.substring(
-      text.toLowerCase().indexOf("summary"),
-      text.toLowerCase().indexOf("education")
-    );
+  let summary = notFound;
+
+  const summaryMatch = summaryHeading.exec(resume);
+
+  if (summaryMatch) {
+    const start = summaryMatch.index + summaryMatch[0].length;
+    const remainingText = resume.slice(start);
+    const nextSection = nextSectionHeading.exec(remainingText);
+
+    const extractedSummary = (
+      nextSection
+        ? remainingText.slice(0, nextSection.index)
+        : remainingText
+    ).trim();
+
+    if (extractedSummary) {
+      summary = extractedSummary.slice(0, 1200);
+    }
   }
 
   // -----------------------------
@@ -189,89 +294,81 @@ export const analyzeResume = (text = "") => {
 
   const certificationKeywords = [
     "AWS Certified",
+    "Google Cloud",
     "Google Certification",
+    "Meta Front-End Developer",
     "Meta Frontend",
+    "Microsoft Certified",
+    "Cisco Certified",
     "Coursera",
     "Udemy",
+    "IBM SkillsBuild",
   ];
 
-  const certifications = certificationKeywords.filter(cert =>
-    text.toLowerCase().includes(cert.toLowerCase())
+  const certifications = certificationKeywords.filter((cert) =>
+    normalized.includes(cert.toLowerCase())
   );
 
   // -----------------------------
   // PROJECTS
   // -----------------------------
 
-  const projectRegex =
-    /Project[:-]?\s*(.*)/gi;
+  const projectHeading =
+    /^\s*(?:projects|personal projects|academic projects|key projects)\s*:?\s*$/im;
 
-  const projects = [...text.matchAll(projectRegex)].map(
-    match => match[1]
-  );
+  let projects = [];
+
+  const projectMatch = projectHeading.exec(resume);
+
+  if (projectMatch) {
+    const afterHeading = resume.slice(
+      projectMatch.index + projectMatch[0].length
+    );
+
+    const nextHeading =
+      /^\s*(?:education|experience|work experience|skills|technical skills|certifications|achievements)\s*:?\s*$/im;
+
+    const nextMatch = nextHeading.exec(afterHeading);
+
+    const projectSection = (
+      nextMatch
+        ? afterHeading.slice(0, nextMatch.index)
+        : afterHeading
+    ).trim();
+
+    projects = projectSection
+      .split(/\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 2)
+      .slice(0, 15);
+  }
 
   // -----------------------------
-  // FINAL OBJECT
+  // FINAL RESULT
   // -----------------------------
 
   return {
-
     name,
-
-    email: email ? email[0] : "Not Found",
-
-    phone: phone ? phone[0] : "Not Found",
-
-    linkedin: linkedin ? linkedin[0] : "Not Found",
-
-    github: github ? github[0] : "Not Found",
-
-    portfolio:
-      portfolio ? portfolio[0] : "Not Found",
-
+    email,
+    phone,
+    linkedin,
+    github,
+    portfolio,
     currentJobTitle,
-
-    currentCompany:
-      companies ? companies[0] : "Not Found",
-
-    totalExperience:
-      totalExperience ? totalExperience[0] : "Not Found",
-
+    currentCompany,
+    totalExperience,
     educationDegree,
-
-    university:
-      university ? university[0] : "Not Found",
-
-    graduationYear:
-      graduationYear ? graduationYear[0] : "Not Found",
-
+    university,
+    graduationYear,
     skills: foundSkills,
-
-    jobTitles: jobTitleKeywords.filter(job =>
-      text.toLowerCase().includes(job.toLowerCase())
-    ),
-
-    companies:
-      companies || [],
-
-    employmentDates:
-      employmentDates || [],
-
-    location:
-      city ? city[0] : "Not Found",
-
-    pinCode:
-      pinCode ? pinCode[0] : "Not Found",
-
-    dateOfBirth:
-      dob ? dob[0] : "Not Found",
-
+    jobTitles,
+    companies,
+    employmentDates,
+    location,
+    pinCode,
+    dateOfBirth,
     summary,
-
     certifications,
-
     projects,
-
   };
-
 };
