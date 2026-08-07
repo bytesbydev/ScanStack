@@ -8,16 +8,17 @@ import aiAnalysis from "../utils/aiAnalysis";
 const Analyzing = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const parsedData = location.state?.parsedData;
+const parsedData = location.state?.parsedData;
+const resumeText = location.state?.resumeText;
 
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!parsedData) {
-      navigate("/", { replace: true });
-      return;
-    }
+    if (!parsedData || !resumeText) {
+  navigate("/", { replace: true });
+  return;
+}
 
     let active = true;
     let navigationTimer;
@@ -45,7 +46,14 @@ const Analyzing = () => {
           if (active) setProgress(89);
         }, 4000));
 
-        const result = await aiAnalysis(parsedData);
+       const result = await aiAnalysis({
+  resumeText,
+  parsedData,
+});
+if (result?.error) {
+  throw new Error(result.error);
+}
+
 
         if (!active) return;
 
@@ -53,10 +61,10 @@ const Analyzing = () => {
 
         navigationTimer = setTimeout(() => {
           if (active) {
-            navigate("/results", {
-              state: { result },
-              replace: true,
-            });
+           navigate("/results", {
+  state: { result },
+  replace: true,
+});
           }
         }, 700);
       } catch (err) {
